@@ -5,16 +5,19 @@
 #include <iostream>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
+#include "ImresizeInFreqFilter.hpp"
 
 using namespace cv;
 using namespace std;
 
-void imresizeInFreq(const Mat& inputImg, Mat& outputImg, Size dsize);
+//void imresizeInFreq(const Mat& inputImg, Mat& outputImg, Size dsize);
+void imresizeInFreq(const Mat& inputImg, Mat& outputImg, int iScaleFactor);
 void filter2DFreq(const Mat& inputImg, Mat& outputImg, const Mat& H);
 
 int main()
 {
-    Mat imgIn = imread("D:\\home\\programming\\vc\\new\\6_My home projects\\18_interpolation_in_freq_domain\\input\\small.jpg", IMREAD_GRAYSCALE);
+    //Mat imgIn = imread("D:\\home\\programming\\vc\\new\\6_My home projects\\18_interpolation_in_freq_domain\\input\\avrFrame.jpg", IMREAD_GRAYSCALE);
+	Mat imgIn = imread("D:\\home\\programming\\vc\\new\\6_My home projects\\18_interpolation_in_freq_domain\\input\\brother.jpg", IMREAD_GRAYSCALE);
     if (imgIn.empty()) //check whether the image is loaded or not
     {
         cout << "ERROR : Image cannot be loaded..!!" << endl;
@@ -28,30 +31,34 @@ int main()
     Rect roi = Rect(0, 0, imgIn.cols & -2, imgIn.rows & -2);
     imgIn = imgIn(roi);
 
-	const int k = 8;
+	const int k = 5;
 	Mat imgOut;
-	Size dsize(imgIn.size()*k);
-	imresizeInFreq(imgIn, imgOut, dsize);
+	//Size dsize(imgIn.size()*k);
+	//imresizeInFreq(imgIn, imgOut, dsize);
+	imresizeInFreq(imgIn, imgOut, k);
 
     imgOut.convertTo(imgOut, CV_8U);
+
     normalize(imgOut, imgOut, 0, 255, NORM_MINMAX);
     imwrite("result.jpg", imgOut);
 
 	imgIn.convertTo(imgIn, CV_8U);
-	normalize(imgIn, imgIn, 0, 255, NORM_MINMAX);
+	//normalize(imgIn, imgIn, 0, 255, NORM_MINMAX);
 	imwrite("imgIn.jpg", imgIn);
 	return 0;
 }
 
 //! [imresizeInFreq]
-void imresizeInFreq(const Mat& inputImg, Mat& outputImg, Size dsize)
+//void imresizeInFreq(const Mat& inputImg, Mat& outputImg, Size dsize)
+// 	iScaleFactor - scale factor along the horizontal axis
+void imresizeInFreq(const Mat& inputImg, Mat& outputImg, int iScaleFactor)
 {
 	Mat planes[2] = { Mat_<float>(inputImg.clone()), Mat::zeros(inputImg.size(), CV_32F) };
 	Mat complexI;
 	merge(planes, 2, complexI);
 	dft(complexI, complexI, DFT_SCALE);
 
-	//Mat ttt = Mat::zeros(dsize, CV_32F);
+	Size dsize(inputImg.size()*iScaleFactor);
 	outputImg = Mat(dsize, CV_32F, Scalar(0));
 
     int cx = inputImg.cols / 2;
