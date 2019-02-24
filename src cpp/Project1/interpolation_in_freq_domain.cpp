@@ -23,28 +23,17 @@ int main()
         cout << "ERROR : Image cannot be loaded..!!" << endl;
         return -1;
     }
-
-    imgIn.convertTo(imgIn, CV_32F);
-
 //! [main]
-    // it needs to process even image only
-    Rect roi = Rect(0, 0, imgIn.cols & -2, imgIn.rows & -2);
-    imgIn = imgIn(roi);
-
 	const int k = 5;
 	Mat imgOut;
-	//Size dsize(imgIn.size()*k);
-	//imresizeInFreq(imgIn, imgOut, dsize);
-	imresizeInFreq(imgIn, imgOut, k);
+	ImresizeInFreqFilter filter;
+	filter.Process(imgIn, imgOut, k);
 
-    imgOut.convertTo(imgOut, CV_8U);
-
-    normalize(imgOut, imgOut, 0, 255, NORM_MINMAX);
-    imwrite("result.jpg", imgOut);
-
-	imgIn.convertTo(imgIn, CV_8U);
-	//normalize(imgIn, imgIn, 0, 255, NORM_MINMAX);
+	normalize(imgIn, imgIn, 0, 255, NORM_MINMAX);
+	normalize(imgOut, imgOut, 0, 255, NORM_MINMAX);
+	
 	imwrite("imgIn.jpg", imgIn);
+	imwrite("result.jpg", imgOut);
 	return 0;
 }
 
